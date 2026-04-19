@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 replicaCount: 1
-=======
-replicaCount: 2
->>>>>>> 8d74be2 (commit 2)
 
 image:
   repository: python-api
@@ -22,8 +18,4 @@ redis:
 ingress:
   enabled: true
   host: localhost
-<<<<<<< HEAD
   path: /api/?(.*)
-=======
-  path: /api/?(.*)
->>>>>>> 8d74be2 (commit 2)
