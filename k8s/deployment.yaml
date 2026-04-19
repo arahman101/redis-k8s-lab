@@ -28,4 +28,8 @@ spec:
             - configMapRef:
                 name: redis-cm
             - secretRef:
+<<<<<<< HEAD
                 name: redis-secret
+=======
+                name: redis-secret
+>>>>>>> 8d74be2 (commit 2)

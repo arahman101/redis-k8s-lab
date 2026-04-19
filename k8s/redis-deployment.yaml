@@ -42,4 +42,8 @@ spec:
       volumes:
         - name: redis-storage
           persistentVolumeClaim:
+<<<<<<< HEAD
             claimName: redis-pvc
+=======
+            claimName: redis-pvc
+>>>>>>> 8d74be2 (commit 2)

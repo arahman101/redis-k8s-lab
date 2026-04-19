@@ -11,4 +11,8 @@ spec:
 
   ports:
     - port: 80
+<<<<<<< HEAD
       targetPort: 8000
+=======
+      targetPort: 8000
+>>>>>>> 8d74be2 (commit 2)

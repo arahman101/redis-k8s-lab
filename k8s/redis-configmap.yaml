@@ -5,4 +5,8 @@ metadata:
 
 data:
   REDIS_HOST: "redis"
+<<<<<<< HEAD
   REDIS_PORT: "6379"
+=======
+  REDIS_PORT: "6379"
+>>>>>>> 8d74be2 (commit 2)

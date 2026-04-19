@@ -12,10 +12,18 @@ spec:
     - host: localhost
       http:
         paths:
+<<<<<<< HEAD
           - path: /api/?(.*)
+=======
+          - path: /api(.*)
+>>>>>>> 8d74be2 (commit 2)
             pathType: ImplementationSpecific
             backend:
               service:
                 name: python-api
                 port:
+<<<<<<< HEAD
                   number: 80
+=======
+                  number: 80
+>>>>>>> 8d74be2 (commit 2)
