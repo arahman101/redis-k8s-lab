@@ -5,7 +5,6 @@ metadata:
 
 spec:
   replicas: 1
-
   selector:
     matchLabels:
       app: redis
@@ -18,32 +17,12 @@ spec:
     spec:
       containers:
         - name: redis
-          image: redis:7
+          image: {{ .Values.redis.image }}
 
           ports:
-            - containerPort: 6379
+            - containerPort: {{ .Values.redis.port }}
 
           args:
             - "redis-server"
             - "--requirepass"
-            - "$(REDIS_PASSWORD)"
-
-          env:
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: redis-secret
-                  key: REDIS_PASSWORD
-
-          volumeMounts:
-            - name: redis-storage
-              mountPath: /data
-
-      volumes:
-        - name: redis-storage
-          persistentVolumeClaim:
-<<<<<<< HEAD
-            claimName: redis-pvc
-=======
-            claimName: redis-pvc
->>>>>>> 8d74be2 (commit 2)
+            - "{{ .Values.redis.password }}"

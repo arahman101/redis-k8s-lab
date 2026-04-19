@@ -1,3 +1,4 @@
+{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -9,21 +10,14 @@ spec:
   ingressClassName: nginx
 
   rules:
-    - host: localhost
+    - host: {{ .Values.ingress.host }}
       http:
         paths:
-<<<<<<< HEAD
-          - path: /api/?(.*)
-=======
-          - path: /api(.*)
->>>>>>> 8d74be2 (commit 2)
+          - path: {{ .Values.ingress.path }}
             pathType: ImplementationSpecific
             backend:
               service:
                 name: python-api
                 port:
-<<<<<<< HEAD
-                  number: 80
-=======
-                  number: 80
->>>>>>> 8d74be2 (commit 2)
+                  number: {{ .Values.service.port }}
+{{- end }}

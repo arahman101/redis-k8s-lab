@@ -8,9 +8,5 @@ spec:
     app: redis
 
   ports:
-    - port: 6379
-<<<<<<< HEAD
-      targetPort: 6379
-=======
-      targetPort: 6379
->>>>>>> 8d74be2 (commit 2)
+    - port: {{ .Values.redis.port }}
+      targetPort: {{ .Values.redis.port }}

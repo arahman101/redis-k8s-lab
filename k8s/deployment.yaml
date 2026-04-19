@@ -4,7 +4,7 @@ metadata:
   name: python-api
 
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
 
   selector:
     matchLabels:
@@ -18,18 +18,14 @@ spec:
     spec:
       containers:
         - name: python-api
-          image: python-api:latest
-          imagePullPolicy: Never
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
 
           ports:
-            - containerPort: 8000
+            - containerPort: {{ .Values.service.targetPort }}
 
           envFrom:
             - configMapRef:
                 name: redis-cm
             - secretRef:
-<<<<<<< HEAD
                 name: redis-secret
-=======
-                name: redis-secret
->>>>>>> 8d74be2 (commit 2)
