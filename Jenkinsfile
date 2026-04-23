@@ -9,12 +9,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/arahman101/redis-k8s-lab.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps{
                 script{
