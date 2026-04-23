@@ -11,8 +11,4 @@ spec:
     requests:
       storage: 1Gi
 
-<<<<<<< HEAD
   storageClassName: standard
-=======
-  storageClassName: standard
->>>>>>> 8d74be2 (commit 2)

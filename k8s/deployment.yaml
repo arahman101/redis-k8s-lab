@@ -2,30 +2,64 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: python-api
-
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 3
+
+  progressDeadlineSeconds: 60
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0   # NEVER take pods down first
+      maxSurge: 1         # allow 1 extra pod during deploy
 
   selector:
     matchLabels:
       app: python-api
-
   template:
     metadata:
       labels:
         app: python-api
-
     spec:
       containers:
         - name: python-api
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-
+          image: 562437414591.dkr.ecr.eu-west-2.amazonaws.com/python-api:latest
           ports:
-            - containerPort: {{ .Values.service.targetPort }}
+            - containerPort: 8000
+
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "15"]
 
           envFrom:
             - configMapRef:
                 name: redis-cm
             - secretRef:
                 name: redis-secret
+
+          # ✅ LIVENESS PROBE
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+
+          # ✅ READINESS PROBE
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+
+          # ✅ STARTUP PROBE (prevents early restarts)
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            failureThreshold: 30
+            periodSeconds: 5

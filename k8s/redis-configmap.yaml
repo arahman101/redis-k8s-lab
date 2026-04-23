@@ -5,4 +5,4 @@ metadata:
 
 data:
   REDIS_HOST: "redis"
-  REDIS_PORT: "{{ .Values.redis.port }}"
+  REDIS_PORT: "6379"
