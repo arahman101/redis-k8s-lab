@@ -61,5 +61,8 @@ pipeline {
                 python-api=${ECR_REPO}:${IMAGE_TAG}
                 '''
             }
-    }
+        }    
+    }   
 }
+
+
