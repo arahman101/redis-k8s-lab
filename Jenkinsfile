@@ -10,8 +10,8 @@ spec:
       image: gcr.io/kaniko-project/executor:latest
       args:
         - --dockerfile=Dockerfile
-        - --context=dir://$WORKSPACE
-        - --destination=562437414591.dkr.ecr.eu-west-2.amazonaws.com/python-api:$BUILD_NUMBER
+        - --context=dir:///workspace
+        - --destination=562437414591.dkr.ecr.eu-west-2.amazonaws.com/python-api:latest
         - --verbosity=info
       volumeMounts:
         - name: docker-config
