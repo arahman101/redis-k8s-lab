@@ -26,6 +26,9 @@ spec:
       args:
         - "999999"
       tty: true
+      envFrom:
+        - secretRef:
+            name: aws-creds
 
   volumes:
     - name: docker-config
