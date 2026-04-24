@@ -6,6 +6,7 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
+
     - name: kaniko
       image: gcr.io/kaniko-project/executor:debug
       command:
@@ -17,6 +18,15 @@ spec:
       volumeMounts:
         - name: docker-config
           mountPath: /kaniko/.docker
+
+    - name: aws
+      image: amazon/aws-cli:2.15.0
+      command:
+        - sleep
+      args:
+        - "999999"
+      tty: true
+
   volumes:
     - name: docker-config
       secret:
@@ -46,14 +56,16 @@ spec:
             }
         }
 
-        stage('Verify Image Exists (ECR)') {
+        stage('Verify Image Exists') {
             steps {
-                sh '''
-                aws ecr describe-images \
-                  --repository-name python-api \
-                  --region eu-west-2 \
-                  --image-ids imageTag=$IMAGE_TAG
-                '''
+                container('aws') {
+                    sh '''
+                    aws ecr describe-images \
+                    --repository-name python-api \
+                    --region eu-west-2 \
+                    --image-ids imageTag=$IMAGE_TAG
+                    '''
+                }
             }
         }
 
