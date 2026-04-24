@@ -1,5 +1,26 @@
 pipeline {
-    agent any
+    agent {
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:latest
+      command:
+        - cat
+      tty: true
+      volumeMounts:
+        - name: docker-config
+          mountPath: /kaniko/.docker
+  volumes:
+    - name: docker-config
+      secret:
+        secretName: ecr-docker-config
+"""
+        }
+    }
 
     environment {
         AWS_REGION = "eu-west-2"
@@ -9,52 +30,17 @@ pipeline {
 
     stages {
 
-        stage('Build Docker Image') {
+        stage('Build & Push Image') {
             steps {
-                script {
-                    docker.build("${ECR_REPO}:${IMAGE_TAG}")
+                container('kaniko') {
+                    sh """
+                    /kaniko/executor \
+                      --dockerfile=Dockerfile \
+                      --context=dir://$WORKSPACE \
+                      --destination=$ECR_REPO:$IMAGE_TAG \
+                      --verbosity=info
+                    """
                 }
-            }
-        }
-
-        stage('Install Trivy') {
-            steps {
-                sh '''
-                curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-                '''
-            }
-        }
-
-        stage('Scan Image') {
-            steps {
-                sh '''
-                ./bin/trivy image ${ECR_REPO}:${IMAGE_TAG} --exit-code 0 --severity HIGH,CRITICAL
-                '''
-            }
-        }
-
-        stage('Push to ECR') {
-            steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-creds'
-                ]]) {
-                    sh '''
-                    aws ecr get-login-password --region $AWS_REGION \
-                    | docker login --username AWS --password-stdin ${ECR_REPO}
-
-                    docker push ${ECR_REPO}:${IMAGE_TAG}
-                    '''
-                }
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh '''
-                kubectl set image deployment/python-api \
-                python-api=$ECR_REPO:$IMAGE_TAG
-                '''
             }
         }
     }
