@@ -74,10 +74,19 @@ spec:
 
         stage('Security Scan (Trivy)') {
             steps {
-                sh '''
-                curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-                ./bin/trivy image $ECR_REPO:$IMAGE_TAG --exit-code 0 --severity HIGH,CRITICAL
-                '''
+                container('aws') {
+                    sh '''
+                    curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+                    
+                    export AWS_REGION=eu-west-2
+                    
+                    ./bin/trivy image \
+                    --timeout 10m \
+                    --severity HIGH,CRITICAL \
+                    --ignore-unfixed \
+                    $ECR_REPO:$IMAGE_TAG
+                    '''
+                }
             }
         }
 
