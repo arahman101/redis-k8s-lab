@@ -32,12 +32,6 @@ spec:
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/arahman101/redis-k8s-lab.git'
-            }
-        }
-
         stage('Build & Push Image') {
             steps {
                 container('kaniko') {
