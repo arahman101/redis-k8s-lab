@@ -7,16 +7,16 @@ kind: Pod
 spec:
   containers:
     - name: kaniko
-      image: gcr.io/kaniko-project/executor:latest
+      image: gcr.io/kaniko-project/executor:debug
+      command:
+        - /busybox/sh
       args:
-        - --dockerfile=Dockerfile
-        - --context=dir:///workspace
-        - --destination=562437414591.dkr.ecr.eu-west-2.amazonaws.com/python-api:latest
-        - --verbosity=info
+        - -c
+        - sleep 999999
+      tty: true
       volumeMounts:
         - name: docker-config
           mountPath: /kaniko/.docker
-  restartPolicy: Never
   volumes:
     - name: docker-config
       secret:
@@ -25,10 +25,30 @@ spec:
         }
     }
 
+    environment {
+        ECR_REPO = "562437414591.dkr.ecr.eu-west-2.amazonaws.com/python-api"
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
                 git 'https://github.com/arahman101/redis-k8s-lab.git'
+            }
+        }
+
+        stage('Build & Push Image') {
+            steps {
+                container('kaniko') {
+                    sh '''
+                    /kaniko/executor \
+                      --dockerfile=$WORKSPACE/Dockerfile \
+                      --context=dir://$WORKSPACE \
+                      --destination=$ECR_REPO:$IMAGE_TAG \
+                      --verbosity=info
+                    '''
+                }
             }
         }
     }
