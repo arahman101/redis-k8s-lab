@@ -30,6 +30,17 @@ spec:
         - secretRef:
             name: aws-creds
 
+    - name: trivy
+      image: aquasec/trivy:0.50.0
+      command:
+        - sleep
+      args:
+        - "999999"
+      tty: true
+      envFrom:
+        - secretRef:
+             name: aws-creds
+
   volumes:
     - name: docker-config
       secret:
@@ -74,13 +85,11 @@ spec:
 
         stage('Security Scan (Trivy)') {
             steps {
-                container('aws') {
+                container('trivy') {
                     sh '''
-                    curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-                    
                     export AWS_REGION=eu-west-2
                     
-                    ./bin/trivy image \
+                    trivy image \
                     --timeout 10m \
                     --severity HIGH,CRITICAL \
                     --ignore-unfixed \
