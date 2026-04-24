@@ -101,20 +101,22 @@ spec:
 
         stage('Tag Latest') {
             steps {
-                sh '''
-                aws ecr batch-get-image \
-                  --repository-name python-api \
-                  --image-ids imageTag=$IMAGE_TAG \
-                  --region eu-west-2 \
-                  --query 'images[].imageManifest' \
-                  --output text > manifest.json
+                container('aws'){
+                    sh '''
+                    aws ecr batch-get-image \
+                    --repository-name python-api \
+                    --image-ids imageTag=$IMAGE_TAG \
+                    --region eu-west-2 \
+                    --query 'images[].imageManifest' \
+                    --output text > manifest.json
 
-                aws ecr put-image \
-                  --repository-name python-api \
-                  --image-tag latest \
-                  --image-manifest file://manifest.json \
-                  --region eu-west-2
-                '''
+                    aws ecr put-image \
+                    --repository-name python-api \
+                    --image-tag latest \
+                    --image-manifest file://manifest.json \
+                    --region eu-west-2
+                    '''
+                }
             }
         }
     }
