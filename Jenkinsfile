@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-            yaml """
+            yaml '''
 apiVersion: v1
 kind: Pod
 spec:
@@ -10,8 +10,8 @@ spec:
       image: gcr.io/kaniko-project/executor:latest
       args:
         - --dockerfile=Dockerfile
-        - --context=dir://$(WORKSPACE)
-        - --destination=562437414591.dkr.ecr.eu-west-2.amazonaws.com/python-api:\$(BUILD_NUMBER)
+        - --context=dir://$WORKSPACE
+        - --destination=562437414591.dkr.ecr.eu-west-2.amazonaws.com/python-api:$BUILD_NUMBER
         - --verbosity=info
       volumeMounts:
         - name: docker-config
@@ -21,7 +21,7 @@ spec:
     - name: docker-config
       secret:
         secretName: ecr-docker-config
-"""
+'''
         }
     }
 
