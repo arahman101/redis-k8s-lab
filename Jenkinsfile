@@ -59,11 +59,13 @@ spec:
 
         stage('Build & Push Image') {
             steps {
-                container('kaniko') {
+                container('aws'){
                     sh '''
                     aws ecr get-login-password --region eu-west-2 \
                     | docker login --username AWS --password-stdin 562437414591.dkr.ecr.eu-west-2.amazonaws.com
                     '''
+                }
+                container('kaniko') {
                     sh '''
                     /kaniko/executor \
                       --dockerfile=$WORKSPACE/Dockerfile \
