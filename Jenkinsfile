@@ -41,10 +41,6 @@ spec:
         - secretRef:
              name: aws-creds
 
-  volumes:
-    - name: docker-config
-      secret:
-        secretName: ecr-docker-config
 '''
         }
     }
@@ -59,19 +55,12 @@ spec:
 
         stage('Build & Push Image') {
             steps {
-                container('aws'){
-                    sh '''
-                    aws ecr get-login-password --region eu-west-2 \
-                    | docker login --username AWS --password-stdin 562437414591.dkr.ecr.eu-west-2.amazonaws.com
-                    '''
-                }
                 container('kaniko') {
                     sh '''
                     /kaniko/executor \
                       --dockerfile=$WORKSPACE/Dockerfile \
                       --context=dir://$WORKSPACE \
-                      --destination=$ECR_REPO:$IMAGE_TAG \
-                      --verbosity=info
+                      --destination=$ECR_REPO:$IMAGE_TAG
                     '''
                 }
             }
