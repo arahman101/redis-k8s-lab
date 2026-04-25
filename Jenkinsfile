@@ -129,7 +129,7 @@ spec:
 
                 sed -i "s/tag:.*/tag: \"$IMAGE_TAG\"/" values.yaml
 
-                git config user.email "arahman101@github.com"
+                git config user.email "artariq2001@gmail.com"
                 git config user.name "arahman101"
 
                 git add values.yaml
