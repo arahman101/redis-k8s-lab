@@ -40,9 +40,9 @@ spec:
       envFrom:
         - secretRef:
              name: aws-creds
-      volumes: 
-        - name: docker-config 
-          secret: 
+  volumes: 
+    - name: docker-config 
+        secret: 
             secretName: ecr-docker-config
 '''
         }
