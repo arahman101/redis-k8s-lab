@@ -42,8 +42,8 @@ spec:
              name: aws-creds
   volumes: 
     - name: docker-config 
-        secret: 
-            secretName: ecr-docker-config
+      secret: 
+        secretName: ecr-docker-config
 '''
         }
     }
