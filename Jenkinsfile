@@ -124,10 +124,8 @@ spec:
                 }
             }
         }
-    }
 
-
-    stage('Update GitOps Repo') {
+        stage('Update GitOps Repo') {
             steps {
                 sh """
                 git clone $GITOPS_REPO gitops
@@ -144,6 +142,8 @@ spec:
                 """
             }
         }
+    }
+
 
     post {
         success {
