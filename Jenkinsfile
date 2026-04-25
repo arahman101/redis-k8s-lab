@@ -63,7 +63,8 @@ spec:
                     /kaniko/executor \
                       --dockerfile=$WORKSPACE/Dockerfile \
                       --context=dir://$WORKSPACE \
-                      --destination=$ECR_REPO:$IMAGE_TAG
+                      --destination=$ECR_REPO:$IMAGE_TAG \
+                      --verbosity=info
                     '''
                 }
             }
@@ -77,7 +78,7 @@ spec:
                     --repository-name python-api \
                     --region eu-west-2 \
                     --image-ids imageTag=$IMAGE_TAG \
-                    --verbosity=info
+                
                     '''
                 }
             }
