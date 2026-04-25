@@ -40,7 +40,10 @@ spec:
       envFrom:
         - secretRef:
              name: aws-creds
-
+    volumes: 
+        - name: docker-config 
+          secret: 
+            secretName: ecr-docker-config
 '''
         }
     }
@@ -73,7 +76,8 @@ spec:
                     aws ecr describe-images \
                     --repository-name python-api \
                     --region eu-west-2 \
-                    --image-ids imageTag=$IMAGE_TAG
+                    --image-ids imageTag=$IMAGE_TAG \
+                    --verbosity=info
                     '''
                 }
             }
