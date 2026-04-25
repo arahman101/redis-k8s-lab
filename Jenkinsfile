@@ -122,22 +122,39 @@ spec:
         }
 
         stage('Update GitOps Repo') {
-            steps {
-                sh """
-                git clone $GITOPS_REPO gitops
-                cd gitops/environments/dev
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'git-creds',
+            usernameVariable: 'GIT_USER',
+            passwordVariable: 'GIT_PASS'
+        )]) {
 
-                sed -i "s/tag:.*/tag: \"$IMAGE_TAG\"/" values.yaml
+            sh """
+            rm -rf gitops
 
-                git config user.email "artariq2001@gmail.com"
-                git config user.name "arahman101"
+            git clone https://$GIT_USER:$GIT_PASS@github.com/arahman101/gitops-infra.git gitops
 
-                git add values.yaml
-                git commit -m "Update image tag to $IMAGE_TAG"
-                git push
-                """
-            }
+            cd gitops/environments/dev
+
+            echo "Before:"
+            cat values.yaml
+
+            sed -i "s/tag:.*/tag: \"$IMAGE_TAG\"/" values.yaml
+
+            echo "After:"
+            cat values.yaml
+
+            git config user.email "artariq2001@gmail.com"
+            git config user.name "arahman101"
+
+            git add values.yaml
+            git commit -m "Update image tag to $IMAGE_TAG"
+
+            git push
+            """
         }
+    }
+}
     }
 
 
