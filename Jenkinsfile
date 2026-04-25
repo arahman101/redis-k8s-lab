@@ -129,8 +129,8 @@ spec:
 
                 sed -i "s/tag:.*/tag: \"$IMAGE_TAG\"/" values.yaml
 
-                git config user.email "jenkins@example.com"
-                git config user.name "jenkins"
+                git config user.email "arahman101@github.com"
+                git config user.name "arahman101"
 
                 git add values.yaml
                 git commit -m "Update image tag to $IMAGE_TAG"
