@@ -52,6 +52,7 @@ spec:
     environment {
         ECR_REPO = "562437414591.dkr.ecr.eu-west-2.amazonaws.com/python-api"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
+        GITOPS_REPO = "https://github.com/arahman101/gitops-infra.git"
     }
 
     stages {
@@ -59,6 +60,10 @@ spec:
         stage('Build & Push Image') {
             steps {
                 container('kaniko') {
+                    sh '''
+                    aws ecr get-login-password --region eu-west-2 \
+                    | docker login --username AWS --password-stdin 562437414591.dkr.ecr.eu-west-2.amazonaws.com
+                    '''
                     sh '''
                     /kaniko/executor \
                       --dockerfile=$WORKSPACE/Dockerfile \
@@ -120,6 +125,25 @@ spec:
             }
         }
     }
+
+
+    stage('Update GitOps Repo') {
+            steps {
+                sh """
+                git clone $GITOPS_REPO gitops
+                cd gitops/environments/dev
+
+                sed -i "s/tag:.*/tag: \"$IMAGE_TAG\"/" values.yaml
+
+                git config user.email "jenkins@example.com"
+                git config user.name "jenkins"
+
+                git add values.yaml
+                git commit -m "Update image tag to $IMAGE_TAG"
+                git push
+                """
+            }
+        }
 
     post {
         success {
