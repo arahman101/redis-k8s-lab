@@ -113,7 +113,7 @@ spec:
 
                     aws ecr put-image \
                     --repository-name python-api \
-                    --image-tag latest \
+                    --image-tag prod-latest \
                     --image-manifest file://manifest.json \
                     --region eu-west-2
                     '''
