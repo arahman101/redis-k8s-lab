@@ -46,6 +46,13 @@ spec:
         secretName: ecr-docker-config
 '''
         }
+
+        parameters {
+        booleanParam(
+            name: 'PROMOTE',
+            defaultValue: false,
+            description: 'Promote this build to production'
+        )
     }
 
     environment {
