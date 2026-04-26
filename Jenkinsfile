@@ -138,7 +138,9 @@ spec:
         {
 
             sh """
-            rm -rf gitops
+
+            rm -rf gitops || true
+            mkdir -p gitops
 
             git clone https://$GIT_USER:$GIT_PASS@github.com/arahman101/gitops-infra.git gitops
 
