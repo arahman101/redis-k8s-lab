@@ -63,6 +63,12 @@ spec:
 
     stages {
 
+        stage('Clean Workspace') {
+            steps {
+                deleteDir()
+            }       
+        }
+
         stage('Build & Push Image') {
             steps {
                 container('kaniko') {
