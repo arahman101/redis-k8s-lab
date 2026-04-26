@@ -46,7 +46,7 @@ spec:
         secretName: ecr-docker-config
 '''
         }
-
+    }
         parameters {
         booleanParam(
             name: 'PROMOTE',
@@ -163,35 +163,35 @@ spec:
         }
     }
 }
+        stage('Promote to Prod') {
+            when {
+            expression { return params.PROMOTE == true }
+            }
+            steps {
+                withCredentials([usernamePassword(
+                credentialsId: 'git-creds',
+                usernameVariable: 'GIT_USER',
+                passwordVariable: 'GIT_PASS'
+            )]) {
 
-stage('Promote to Prod') {
-    when {
-        expression { return params.PROMOTE == true }
-    }
-    steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'git-creds',
-            usernameVariable: 'GIT_USER',
-            passwordVariable: 'GIT_PASS'
-        )]) {
+                sh """
+                git clone https://$GIT_USER:$GIT_PASS@github.com/arahman101/gitops-infra.git gitops
+                cd gitops/environments/prod
 
-            sh """
-            git clone https://$GIT_USER:$GIT_PASS@github.com/arahman101/gitops-infra.git gitops
-            cd gitops/environments/prod
+                sed -i "s/tag:.*/tag: \\"$IMAGE_TAG\\"/" values.yaml
 
-            sed -i "s/tag:.*/tag: \\"$IMAGE_TAG\\"/" values.yaml
+                git config user.email "artariq2001@gmail.com"
+                git config user.name "arahman101"
 
-            git config user.email "artariq2001@gmail.com"
-            git config user.name "arahman101"
+                git add values.yaml
+                git commit -m "Promote image $IMAGE_TAG to prod"
 
-            git add values.yaml
-            git commit -m "Promote image $IMAGE_TAG to prod"
-
-            git push
-            """
-        }
-    }
-}
+                git push
+                """
+                }   
+            }
+        } 
+      
     }
 
 
