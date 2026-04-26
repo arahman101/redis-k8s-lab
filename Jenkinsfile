@@ -63,31 +63,34 @@ spec:
 
     stages {
 
-        stage('Clean Workspace') {
+        stage('Prepare Workspace') {
             steps {
                 deleteDir()
-            }       
-        }
-
-        stage('Checkout Code') {
-            steps {
                 checkout scm
             }
-        }       
+        }
 
-        stage('Build & Push Image') {
-            steps {
-                container('kaniko') {
-                    sh '''
-                    /kaniko/executor \
-                      --dockerfile=$WORKSPACE/Dockerfile \
-                      --context=dir://$WORKSPACE \
-                      --destination=$ECR_REPO:$IMAGE_TAG \
-                      --verbosity=info
-                    '''
+    stage('Build & Scan') {
+        parallel {           
+
+            stage('Build & Push Image') {
+                steps {
+                    container('kaniko') {
+                        sh '''
+                        /kaniko/executor \
+                        --dockerfile=$WORKSPACE/Dockerfile \
+                        --context=dir://$WORKSPACE \
+                        --destination=$ECR_REPO:$IMAGE_TAG \
+                        --cache=true \
+                        --cache-repo=$ECR_REPO/cache \
+                        --cache-copy-layers \
+                        --verbosity=info
+                        '''
+                    }
                 }
             }
-        }
+        }    
+    }
 
         stage('Verify Image Exists') {
             steps {
@@ -146,37 +149,38 @@ spec:
                     credentialsId: 'git-creds',
                     usernameVariable: 'GIT_USER',
                     passwordVariable: 'GIT_PASS'
-                )]) 
-        {
+                )]) {
 
-            sh """
+                    sh '''
+                    rm -rf gitops-* || true
 
-            rm -rf gitops || true
-            mkdir -p gitops
+                    cat > ~/.netrc <<EOF
+                    machine github.com
+                    login $GIT_USER
+                    password $GIT_PASS
+                    EOF
 
-            git clone https://$GIT_USER:$GIT_PASS@github.com/arahman101/gitops-infra.git gitops
+                    chmod 600 ~/.netrc
 
-            cd gitops/environments/dev
+                    git clone --depth 1 https://github.com/arahman101/gitops-infra.git gitops-$BUILD_NUMBER
 
-            echo "Before:"
-            cat values.yaml
+                    cd gitops-$BUILD_NUMBER/environments/dev
 
-            sed -i "s/tag:.*/tag: \"$IMAGE_TAG\"/" values.yaml
+                    sed -i "s/tag:.*/tag: \\"$IMAGE_TAG\\"/" values.yaml
 
-            echo "After:"
-            cat values.yaml
+                    git config user.email "artariq2001@gmail.com"
+                    git config user.name "arahman101"
 
-            git config user.email "artariq2001@gmail.com"
-            git config user.name "arahman101"
+                    git add values.yaml
+                    git diff --quiet || git commit -m "Update image tag to $IMAGE_TAG"
 
-            git add values.yaml
-            git commit -m "Update image tag to $IMAGE_TAG"
-
-            git push
-            """
+                    git push
+                    '''
+                }
+            }
         }
-    }
-}
+
+        
         stage('Promote to Prod') {
             when {
             expression { return params.PROMOTE == true }
