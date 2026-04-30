@@ -194,7 +194,7 @@ spec:
 
                 sh """
                 git clone https://$GIT_USER:$GIT_PASS@github.com/arahman101/gitops-infra.git gitops
-                cd gitops/environments/prod
+                cd gitops-$BUILD_NUMBER/environments/prod
 
                 sed -i "s/tag:.*/tag: \\"$IMAGE_TAG\\"/" values.yaml
 
