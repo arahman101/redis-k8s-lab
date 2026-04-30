@@ -154,6 +154,7 @@ spec:
                     sh '''
                     rm -rf gitops-* || true
 
+                    # Securely configure git credentials
                     cat > ~/.netrc <<EOF
                     machine github.com
                     login $GIT_USER
@@ -162,17 +163,21 @@ spec:
 
                     chmod 600 ~/.netrc
 
+                    # Clone the repository
                     git clone --depth 1 https://github.com/arahman101/gitops-infra.git gitops-$BUILD_NUMBER
 
-                    cd gitops-$BUILD_NUMBER/environments/dev
+                    # Navigate to the Helm chart directory
+                    cd gitops-$BUILD_NUMBER/helm/redis-app
 
-                    sed -i "s/tag:.*/tag: \\"$IMAGE_TAG\\"/" values.yaml
+                    # Target the dev specific values file
+                    sed -i "s/tag:.*/tag: \\"$IMAGE_TAG\\"/" values-dev.yaml
 
                     git config user.email "artariq2001@gmail.com"
                     git config user.name "arahman101"
 
-                    git add values.yaml
-                    git diff --quiet || git commit -m "Update image tag to $IMAGE_TAG"
+                    # Add and commit the dev file
+                    git add values-dev.yaml
+                    git diff --quiet || git commit -m "Update dev image tag to $IMAGE_TAG"
 
                     git push
                     '''
@@ -183,32 +188,48 @@ spec:
         
         stage('Promote to Prod') {
             when {
-            expression { return params.PROMOTE == true }
+                expression { return params.PROMOTE == true }
             }
             steps {
                 withCredentials([usernamePassword(
-                credentialsId: 'git-creds',
-                usernameVariable: 'GIT_USER',
-                passwordVariable: 'GIT_PASS'
-            )]) {
+                    credentialsId: 'git-creds',
+                    usernameVariable: 'GIT_USER',
+                    passwordVariable: 'GIT_PASS'
+                )]) {
 
-                sh """
-                git clone https://$GIT_USER:$GIT_PASS@github.com/arahman101/gitops-infra.git gitops
-                cd gitops-$BUILD_NUMBER/environments/prod
+                    sh '''
+                    rm -rf gitops-prod-* || true
 
-                sed -i "s/tag:.*/tag: \\"$IMAGE_TAG\\"/" values.yaml
+                    # Securely configure git credentials
+                    cat > ~/.netrc <<EOF
+                    machine github.com
+                    login $GIT_USER
+                    password $GIT_PASS
+                    EOF
+                    
+                    chmod 600 ~/.netrc
 
-                git config user.email "artariq2001@gmail.com"
-                git config user.name "arahman101"
+                    # Clone fresh for prod to avoid conflicts with the dev workspace
+                    git clone --depth 1 https://github.com/arahman101/gitops-infra.git gitops-prod-$BUILD_NUMBER
+                    
+                    # Navigate to the Helm chart directory
+                    cd gitops-prod-$BUILD_NUMBER/helm/redis-app
 
-                git add values.yaml
-                git commit -m "Promote image $IMAGE_TAG to prod"
+                    # Target the prod specific values file
+                    sed -i "s/tag:.*/tag: \\"$IMAGE_TAG\\"/" values-prod.yaml
 
-                git push
-                """
+                    git config user.email "artariq2001@gmail.com"
+                    git config user.name "arahman101"
+
+                    # Add and commit the prod file
+                    git add values-prod.yaml
+                    git diff --quiet || git commit -m "Promote image $IMAGE_TAG to prod"
+
+                    git push
+                    '''
                 }   
             }
-        } 
+        }
       
     }
 
